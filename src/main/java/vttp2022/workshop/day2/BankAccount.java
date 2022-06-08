@@ -26,40 +26,42 @@ public class BankAccount {
     private LocalDateTime accountCreationDate;
     private LocalDateTime accountClosingDate;
 
-    protected float withdraw(String withdrawAmt) {
+    public float withdraw(String withdrawAmt){
         Float withdrawAmtF = null;
-        try {
-            Float withdrawAmtF = Float.parseFloat(withdrawAmt);
-            if (withdrawAmtF.floatValue()<= 0){
-                throw new IllegalArgumentException("Amount cannot be negative");
+        try{
+            withdrawAmtF = Float.parseFloat(withdrawAmt);
+            if (withdrawAmtF.floatValue() <= 0){
+                throw new IllegalArgumentException("Withdrawal amount cannot be negative or kosong");
             }
 
-            if (this.isClosed()){
-                throw new IllegalArgumentException("Account is closed");
+            if(this.isClosed()){
+                throw new IllegalArgumentException("Account is closed lah!");
             }
 
-            //update the balance amount
-            this.balance -= withdrawAmtF.floatValue();
+            if (withdrawAmtF.floatValue() > this.balance){
+                throw new IllegalArgumentException("Insufficient funds for withdrawal");
+            }
 
-            // Construct transaction history event log
-            StringBuilder txnStrBld = new StringBuilder();
-            txnStrBld.append("Withdraw $");
-            txnStrBld.append(withdrawAmtF.floatValue());
-            txnStrBld.append("at");
-            txnStrBld.append(LocalDateTime.now());
-            System.out.println(txnStrBld.toString());
-            //save the event log into txn LinkedList
-            transaction.add(txnStrBld.toString());
-
-        } catch (NumberFormatException e) {
+            this.balance = this.balance  - withdrawAmtF.floatValue();
+            // Construct the transaction history event log 
+            StringBuilder txnStrbld = new StringBuilder();
+            txnStrbld.append("Withdraw $");
+            txnStrbld.append(withdrawAmtF.floatValue());
+            txnStrbld.append(" at ");
+            txnStrbld.append(LocalDateTime.now());
+            System.out.println(txnStrbld.toString());
+            // save the event log into the txn linkedList 
+            transaction.add(txnStrbld.toString());
+            // update the deposit amount
+            
+        }catch(NumberFormatException e){
             System.err.print(e);
-            throw new IllegalArgumentException("Inavlid deposit amount");
+            throw new IllegalArgumentException("Invalid withdraw amount");
         }
-        
         return withdrawAmtF.floatValue();
     }
 
-    protected void deposit(String depositAmt){
+    public void deposit(String depositAmt){
         try {
             Float depositAmtF = Float.parseFloat(depositAmt);
             if (depositAmtF.floatValue()<= 0){
